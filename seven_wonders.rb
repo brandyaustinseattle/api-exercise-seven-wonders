@@ -1,14 +1,41 @@
+require 'pry'
 require 'httparty'
+class Place
+  attr_accessor :name
 
-#Starter Code:
+  def initialize(name)
+    @name = name
+  end
+
+  def get_info
+    encoded_uri = URI.encode("https://maps.googleapis.com/maps/api/place/textsearch/json?query=#{@name}&language=en&key=AIzaSyCBNp7R2Yc2-bgjqhMoCdGXAy7Y8Ndd3v4")
+    HTTParty.get(encoded_uri).parsed_response
+  end
+
+  def find_lat_long
+    info = self.get_info
+    if info["status"] == "OK"
+      return info["results"][0]["geometry"]["location"]
+    else
+      return "Location can't be found"
+    end
+  end
+
+end
+
 seven_wonders = ["Great Pyramid of Giza", "Hanging Gardens of Babylon", "Colossus of Rhodes", "Pharos of Alexandria", "Statue of Zeus at Olympia", "Temple of Artemis", "Mausoleum at Halicarnassus"]
 
+seven_wonders.each_with_index do |w, index|
+  place = Place.new(w)
+  seven_wonders[index] = place
+end
 
+locations = {}
+seven_wonders.each do |w|
+  locations[w.name] = w.find_lat_long
+end
 
-
-
-
-
+puts locations.inspect
 
 
 #Example Output:
